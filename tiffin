@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TiffinTrack — Smart Tiffin Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root {
+  --primary: #1a6b4a;
+  --primary-light: #2d9e6e;
+  --primary-dark: #0e4a31;
+  --accent: #f5a623;
+  --accent-dark: #d4891a;
+  --bg: #f7f5f0;
+  --surface: #ffffff;
+  --surface2: #f0ede6;
+  --border: #e0dbd0;
+  --text: #1c1a16;
+  --text2: #5a5548;
+  --text3: #9a9080;
+  --red: #c0392b;
+  --red-bg: #fdf0ee;
+  --blue: #1a5f8a;
+  --blue-bg: #eef4fa;
+  --green-bg: #eaf5ef;
+  --shadow: 0 2px 12px rgba(26,107,74,0.10);
+  --shadow-lg: 0 8px 40px rgba(26,107,74,0.13);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+}
+
+/* ===== LOGIN PAGE ===== */
+#login-screen {
+  display: flex;
+  min-height: 100vh;
+  align-items: stretch;
+}
+.login-left {
+  flex: 1;
+  background: linear-gradient(135deg, var(--primary-dark) 0%, #1a6b4a 60%, #2d9e6e 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 40px;
+  position: relative;
+  overflow: hidden;
+}
+.login-left::before {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  border: 60px solid rgba(255,255,255,0.04);
+  top: -100px; left: -80px;
+}
+.login-left::after {
+  content: '';
+  position: absolute;
+  width: 300px; height: 300px;
+  border-radius: 50%;
+  border: 40px solid rgba(255,255,255,0.05);
+  bottom: -80px; right: -60px;
+}
+.login-brand {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 36px; z-index: 1;
+}
+.login-logo-icon {
+  width: 60px; height: 60px;
+  background: var(--accent);
+  border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.login-brand-text .brand-name {
+  font-size: 28px; font-weight: 700; color: #fff;
+  letter-spacing: -0.5px;
+}
+.login-brand-text .brand-tag {
+  font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 1px;
+}
+.login-desc {
+  z-index: 1; text-align: center; max-width: 320px;
+}
+.login-desc h2 {
+  font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 12px;
+}
+.login-desc p {
+  font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.7;
+}
+.login-features {
+  z-index: 1; margin-top: 32px; display: flex; flex-direction: column; gap: 12px;
+}
+.login-feat {
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px; padding: 11px 16px;
+  font-size: 13px; color: rgba(255,255,255,0.8);
+}
+.login-feat .fi { font-size: 18px; }
+
+/* Developer credit on left panel */
+.login-dev-credit {
+  z-index: 1;
+  margin-top: 36px;
+  padding: 10px 20px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 30px;
+  font-size: 11.5px;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.03em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.login-dev-credit strong {
+  color: rgba(255,255,255,0.85);
+  font-weight: 600;
+}
+
+.login-right {
+  width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 48px;
+  background: var(--surface);
+}
+.login-form-box {
+  width: 100%; max-width: 360px;
+  animation: loginFadeIn 0.4s ease;
+}
+.login-form-box h3 {
+  font-size: 22px; font-weight: 700; color: var(--primary-dark);
+  margin-bottom: 4px;
+}
+.login-form-box .login-sub {
+  font-size: 13px; color: var(--text3); margin-bottom: 28px;
+}
+.login-field { margin-bottom: 16px; }
+.login-field label {
+  display: block; font-size: 11.5px; font-weight: 600;
+  color: var(--text2); margin-bottom: 6px; letter-spacing: 0.03em;
+}
+.login-input-wrap { position: relative; }
+.login-input-wrap input {
+  width: 100%; padding: 12px 14px 12px 42px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-family: 'Sora', sans-serif;
+  font-size: 13px; color: var(--text);
+  background: var(--bg);
+  transition: all 0.2s;
+}
+.login-input-wrap input:focus {
+  outline: none;
+  border-color: var(--primary-light);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(45,158,110,0.12);
+}
+.login-input-icon {
+  position: absolute; left: 13px; top: 50%;
+  transform: translateY(-50%); font-size: 16px; opacity: 0.45;
+}
+.pass-toggle {
+  position: absolute; right: 12px; top: 50%;
+  transform: translateY(-50%);
+  background: none; border: none; cursor: pointer;
+  font-size: 16px; opacity: 0.4; transition: opacity 0.2s;
+  padding: 2px;
+}
+.pass-toggle:hover { opacity: 0.7; }
+
+.login-error {
+  background: var(--red-bg);
+  border: 1px solid rgba(192,57,43,0.2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 12px; color: var(--red);
+  display: none;
+}
+.login-error.show { display: block; }
+
+.btn-login {
+  width: 100%;
+  padding: 13px;
+  background: var(--primary);
+  border: none; border-radius: 10px;
+  font-family: 'Sora', sans-serif;
+  font-size: 14px; font-weight: 600;
+  color: #fff; cursor: pointer;
+  transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-login:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(26,107,74,0.3); }
+.btn-login:active { transform: none; }
+.btn-login.loading { opacity: 0.7; pointer-events: none; }
+
+.login-role-tabs {
+  display: flex; gap: 8px; margin-bottom: 22px;
+}
+.role-tab {
+  flex: 1; padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 9px; background: var(--bg);
+  cursor: pointer; font-family: 'Sora', sans-serif;
+  font-size: 12px; font-weight: 500; color: var(--text2);
+  transition: all 0.2s; text-align: center;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.role-tab.active {
+  border-color: var(--primary); background: var(--green-bg);
+  color: var(--primary); font-weight: 600;
+}
+.login-footer {
+  text-align: center; margin-top: 20px;
+  font-size: 11px; color: var(--text3);
+}
+/* Developer credit in login footer */
+.login-footer-dev {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--text3);
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.login-footer-dev span {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .login-left { display: none; }
+  .login-right { width: 100%; padding: 32px 24px; }
+}
+
+/* ===== USER BADGE (TOPBAR) ===== */
+.user-badge {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--green-bg);
+  border: 1px solid rgba(26,107,74,0.15);
+  border-radius: 20px; padding: 5px 12px 5px 6px;
+  font-size: 12px; font-weight: 600; color: var(--primary);
+}
+.user-avatar {
+  width: 26px; height: 26px;
+  background: var(--primary);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: #fff; font-weight: 700;
+}
+.btn-logout {
+  background: none; border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 5px 10px;
+  font-family: 'Sora', sans-serif;
+  font-size: 12px; cursor: pointer; color: var(--text2);
+  transition: all 0.15s; display: flex; align-items: center; gap: 5px;
+}
+.btn-logout:hover { background: var(--red-bg); border-color: #e0a0a0; color: var(--red); }
+
+/* ===== ROLE BADGE ===== */
+.role-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 10px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.role-admin { background: #fef3e2; color: #b07a0e; }
+.role-viewer { background: var(--blue-bg); color: var(--blue); }
+
+/* ===== MAIN APP (hidden until login) ===== */
+#app-screen { display: none; }
+
+/* SIDEBAR LAYOUT */
+.layout { display: flex; min-height: 100vh; }
+.sidebar {
+  width: 240px;
+  background: var(--primary-dark);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  transition: transform 0.3s;
+}
+.sidebar-logo {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.sidebar-logo .brand {
+  font-size: 20px; font-weight: 700; letter-spacing: -0.5px;
+  display: flex; align-items: center; gap: 10px;
+}
+.logo-icon {
+  width: 36px; height: 36px;
+  background: var(--accent); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+.sidebar-logo .tagline { font-size: 11px; opacity: 0.5; margin-top: 3px; letter-spacing: 0.02em; }
+.month-picker { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.month-picker label { font-size: 10px; opacity: 0.5; text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 6px; }
+.month-picker select {
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+  color: #fff; border-radius: 8px; padding: 6px 10px;
+  font-size: 13px; font-family: 'Sora', sans-serif; width: 100%; cursor: pointer; margin-bottom: 6px;
+}
+.month-picker select option { background: var(--primary-dark); }
+nav { flex: 1; padding: 12px 10px; overflow-y: auto; }
+.nav-item {
+  display: flex; align-items: center; gap: 11px;
+  padding: 10px 12px; border-radius: 10px; cursor: pointer;
+  font-size: 13.5px; color: rgba(255,255,255,0.7);
+  margin-bottom: 2px; transition: all 0.2s;
+  border: none; background: none; width: 100%; text-align: left;
+  font-family: 'Sora', sans-serif;
+}
+.nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.nav-item.active { background: var(--primary-light); color: #fff; font-weight: 600; }
+.nav-item .nav-icon { font-size: 17px; width: 22px; text-align: center; }
+.nav-item.disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
+
+/* Sidebar footer with developer credit */
+.sidebar-footer {
+  padding: 14px 16px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  text-align: center;
+}
+.sidebar-footer-copy {
+  font-size: 11px;
+  opacity: 0.4;
+  margin-bottom: 6px;
+}
+.sidebar-dev-credit {
+  font-size: 10.5px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+}
+.sidebar-dev-credit strong {
+  color: rgba(255,255,255,0.6);
+  font-weight: 600;
+}
+
+.main { margin-left: 240px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+.topbar {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 0 28px; height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 50;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+}
+.topbar-left { display: flex; align-items: center; gap: 10px; }
+.topbar-title { font-size: 16px; font-weight: 600; }
+.topbar-sub { font-size: 12px; color: var(--text3); margin-top: 1px; }
+.topbar-actions { display: flex; gap: 8px; align-items: center; }
+.content { padding: 24px 28px; flex: 1; }
+
+/* App footer with developer credit */
+.app-footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 12px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.app-footer-copy { font-size: 11px; color: var(--text3); }
+.app-footer-dev {
+  font-size: 11px;
+  color: var(--text3);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.app-footer-dev strong {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.panel { display: none; animation: fadeIn 0.25s ease; }
+.panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.metric-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  padding: 18px 20px; position: relative; overflow: hidden; box-shadow: var(--shadow);
+}
+.metric-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 3px; background: var(--stripe, var(--primary-light)); border-radius: 14px 14px 0 0;
+}
+.metric-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+.metric-value { font-size: 26px; font-weight: 700; color: var(--metric-color, var(--text)); letter-spacing: -1px; }
+.metric-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 28px; opacity: 0.08; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px 22px; margin-bottom: 20px; box-shadow: var(--shadow); }
+.card-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.card-title .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary-light); flex-shrink: 0; }
+
+.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.field-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.field-grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 14px; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+label.lbl { font-size: 11.5px; font-weight: 500; color: var(--text2); }
+input, select, textarea {
+  padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 9px;
+  font-family: 'Sora', sans-serif; font-size: 13px; color: var(--text);
+  background: var(--surface); transition: border-color 0.2s, box-shadow 0.2s; width: 100%;
+}
+input:focus, select:focus { outline: none; border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(45,158,110,0.12); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 18px; border-radius: 9px; border: 1.5px solid var(--border);
+  background: var(--surface); font-family: 'Sora', sans-serif;
+  font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text);
+  transition: all 0.18s; white-space: nowrap;
+}
+.btn:hover { background: var(--surface2); border-color: #ccc; transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,0.08); }
+.btn:active { transform: none; }
+.btn-primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-light); border-color: var(--primary-light); }
+.btn-accent { background: var(--accent); border-color: var(--accent); color: var(--primary-dark); font-weight: 600; }
+.btn-accent:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+.btn-danger { border-color: #e0a0a0; color: var(--red); }
+.btn-danger:hover { background: var(--red-bg); }
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+.btn-row { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 12px; }
+
+.table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; }
+thead th { background: var(--surface2); padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text2); border-bottom: 1px solid var(--border); white-space: nowrap; }
+tbody td { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: #fafaf7; }
+.total-row td { background: var(--green-bg) !important; font-weight: 600; border-top: 2px solid var(--border); }
+.paid-row td { background: var(--blue-bg) !important; }
+.pend-row td { background: var(--red-bg) !important; }
+
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.badge-green { background: var(--green-bg); color: var(--primary); }
+.badge-red { background: var(--red-bg); color: var(--red); }
+.badge-amber { background: #fef3e2; color: #b07a0e; }
+.badge-blue { background: var(--blue-bg); color: var(--blue); }
+
+.dot-yes { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 6px; background: var(--primary); color: #fff; font-size: 11px; font-weight: 700; }
+.dot-no { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 6px; background: var(--surface2); color: var(--text3); font-size: 11px; border: 1px solid var(--border); }
+
+.meal-checks { display: flex; gap: 14px; margin-top: 6px; }
+.meal-checks label { display: flex; align-items: center; gap: 5px; font-size: 13px; cursor: pointer; }
+
+.rate-info { padding: 14px 16px; background: var(--green-bg); border: 1px solid rgba(26,107,74,0.15); border-radius: 10px; font-size: 13px; margin-top: 12px; display: flex; gap: 20px; flex-wrap: wrap; }
+.rate-info strong { color: var(--primary); }
+
+.empty { text-align: center; padding: 40px 20px; color: var(--text3); }
+.empty .e-icon { font-size: 36px; margin-bottom: 8px; }
+.empty p { font-size: 13px; }
+
+.menu-toggle { display: none; background: none; border: none; font-size: 22px; cursor: pointer; padding: 6px; }
+
+.bill-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; padding-bottom: 16px; border-bottom: 2px dashed var(--border); }
+.bill-brand { font-size: 22px; font-weight: 700; color: var(--primary); }
+.bill-meta { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: none; }
+  .main { margin-left: 0; }
+  .menu-toggle { display: block; }
+  .field-grid, .field-grid-3, .field-grid-4 { grid-template-columns: 1fr; }
+  .content { padding: 16px; }
+  .topbar { padding: 0 16px; }
+}
+
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 99; }
+.overlay.show { display: block; }
+
+/* CALENDAR */
+.cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.cal-nav { display: flex; align-items: center; gap: 10px; }
+.cal-nav button { background: none; border: 1.5px solid var(--border); border-radius: 8px; width: 32px; height: 32px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; color: var(--text); }
+.cal-nav button:hover { background: var(--surface2); border-color: #bbb; }
+.cal-month-label { font-size: 16px; font-weight: 700; min-width: 160px; text-align: center; color: var(--primary-dark); }
+.cal-cust-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.cal-cust-bar label { font-size: 12px; font-weight: 500; color: var(--text2); }
+.cal-legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; font-size: 12px; color: var(--text2); padding: 10px 14px; background: var(--surface2); border-radius: 10px; }
+.cal-legend span { display: flex; align-items: center; gap: 6px; }
+.leg-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.cal-day-name { text-align: center; font-size: 11px; font-weight: 600; color: var(--text3); padding: 6px 0; text-transform: uppercase; letter-spacing: 0.06em; }
+.cal-cell { border: 1.5px solid var(--border); border-radius: 12px; padding: 8px 6px 7px; min-height: 76px; cursor: pointer; transition: all 0.15s; background: var(--surface); position: relative; display: flex; flex-direction: column; }
+.cal-cell:hover { border-color: var(--primary-light); box-shadow: 0 2px 10px rgba(26,107,74,0.12); transform: translateY(-1px); }
+.cal-cell.empty { background: transparent; border-color: transparent; cursor: default; pointer-events: none; }
+.cal-cell.today { border-color: var(--primary-light); border-width: 2px; background: var(--green-bg); }
+.cal-cell.has-entry { background: #f0fdf8; }
+.cal-date-num { font-size: 13px; font-weight: 600; color: var(--text2); margin-bottom: 5px; line-height: 1; }
+.cal-cell.today .cal-date-num { color: var(--primary); }
+.cal-today-badge { position: absolute; top: 5px; right: 6px; font-size: 9px; background: var(--primary); color: #fff; border-radius: 4px; padding: 1px 5px; font-weight: 600; }
+.cal-meals { display: flex; flex-wrap: wrap; gap: 3px; margin-top: auto; }
+.cal-pill { font-size: 10px; font-weight: 700; padding: 2px 5px; border-radius: 4px; line-height: 1.2; }
+.pill-b { background: #fff3cd; color: #856404; }
+.pill-l { background: #d1ecf1; color: #0c5460; }
+.pill-d { background: #e2d9f3; color: #4a235a; }
+.pill-e { background: #fde8d8; color: #7d3c12; }
+.cal-total { font-size: 10px; font-weight: 600; color: var(--primary); margin-top: 3px; }
+
+/* MODAL */
+.modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: center; justify-content: center; }
+.modal-backdrop.open { display: flex; }
+.modal { background: var(--surface); border-radius: 18px; padding: 24px 26px; width: 360px; max-width: 95vw; box-shadow: 0 16px 60px rgba(0,0,0,0.22); animation: modalIn 0.2s ease; }
+@keyframes modalIn { from { transform: scale(0.93) translateY(10px); opacity:0; } to { transform: none; opacity:1; } }
+.modal-title { font-size: 15px; font-weight: 700; color: var(--primary-dark); margin-bottom: 4px; }
+.modal-sub { font-size: 12px; color: var(--text3); margin-bottom: 18px; }
+.modal-meal-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-radius: 10px; border: 1.5px solid var(--border); margin-bottom: 9px; cursor: pointer; transition: all 0.15s; user-select: none; }
+.modal-meal-row:hover { border-color: var(--primary-light); background: var(--green-bg); }
+.modal-meal-row.selected { border-color: var(--primary); background: var(--green-bg); }
+.meal-row-left { display: flex; align-items: center; gap: 10px; }
+.meal-emoji { font-size: 18px; }
+.meal-name { font-size: 13px; font-weight: 600; }
+.meal-price { font-size: 11px; color: var(--text3); }
+.meal-toggle { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 13px; transition: all 0.15s; flex-shrink: 0; }
+.modal-meal-row.selected .meal-toggle { background: var(--primary); border-color: var(--primary); color: #fff; }
+.extra-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-radius: 10px; border: 1.5px solid var(--border); margin-bottom: 14px; }
+.extra-row label { font-size: 13px; font-weight: 600; }
+.extra-row .extra-ctrl { display: flex; align-items: center; gap: 8px; }
+.extra-ctrl button { width: 28px; height: 28px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; font-weight: 700; color: var(--primary); }
+.extra-ctrl button:hover { background: var(--green-bg); border-color: var(--primary-light); }
+.extra-ctrl .extra-val { font-size: 15px; font-weight: 700; min-width: 24px; text-align: center; }
+.modal-total-box { padding: 12px 16px; background: var(--primary-dark); border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.modal-total-box .tl { font-size: 12px; color: rgba(255,255,255,0.6); }
+.modal-total-box .tv { font-size: 22px; font-weight: 800; color: #fff; }
+.modal-actions { display: flex; gap: 9px; }
+.modal-actions .btn { flex: 1; justify-content: center; }
+
+/* READ-ONLY OVERLAY for viewer */
+.readonly-block { pointer-events: none; opacity: 0.6; }
+.viewer-notice {
+  background: var(--blue-bg); border: 1px solid rgba(26,95,138,0.2);
+  border-radius: 10px; padding: 10px 16px; margin-bottom: 16px;
+  font-size: 12px; color: var(--blue); display: flex; align-items: center; gap: 8px;
+}
+
+/* ===== PASSWORD CHANGE SECTION ===== */
+.pwd-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px 24px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+.pwd-section-title {
+  font-size: 13px; font-weight: 700; color: var(--primary-dark);
+  margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
+}
+.pwd-section-sub { font-size: 12px; color: var(--text3); margin-bottom: 20px; }
+
+.pwd-single-box {
+  border: 1.5px solid var(--border); border-radius: 12px;
+  padding: 18px 20px; background: var(--bg); max-width: 420px;
+}
+.pwd-account-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+}
+.pwd-account-icon {
+  width: 38px; height: 38px; border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; font-weight: 700; color: #fff;
+}
+.pwd-account-icon.admin-icon { background: var(--accent-dark); }
+.pwd-account-icon.viewer-icon { background: var(--blue); }
+.pwd-account-name { font-size: 14px; font-weight: 700; }
+.pwd-account-user { font-size: 11px; color: var(--text3); margin-top: 1px; }
+.pwd-field { margin-bottom: 12px; }
+.pwd-field label { font-size: 11px; font-weight: 600; color: var(--text2); display: block; margin-bottom: 5px; letter-spacing: 0.03em; }
+.pwd-input-wrap { position: relative; }
+.pwd-input-wrap input {
+  width: 100%; padding: 9px 38px 9px 12px;
+  border: 1.5px solid var(--border); border-radius: 9px;
+  font-family: 'Sora', sans-serif; font-size: 13px; color: var(--text);
+  background: var(--surface); transition: all 0.2s;
+}
+.pwd-input-wrap input:focus {
+  outline: none; border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(45,158,110,0.12);
+}
+.pwd-eye {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; font-size: 14px; opacity: 0.4;
+  padding: 2px; transition: opacity 0.2s;
+}
+.pwd-eye:hover { opacity: 0.7; }
+.pwd-strength { height: 4px; border-radius: 2px; margin-top: 5px; background: var(--border); overflow: hidden; }
+.pwd-strength-bar { height: 100%; border-radius: 2px; transition: width 0.3s, background 0.3s; width: 0%; }
+.pwd-strength-text { font-size: 10px; margin-top: 3px; font-weight: 600; }
+.pwd-match-hint { font-size: 10px; margin-top: 4px; font-weight: 600; min-height: 14px; }
+.pwd-actions {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.pwd-current-display {
+  background: var(--green-bg); border: 1px solid rgba(26,107,74,0.15);
+  border-radius: 10px; padding: 12px 16px; margin-bottom: 16px;
+  font-size: 13px; color: var(--primary-dark);
+}
+
+.strength-weak { background: var(--red); }
+.strength-fair { background: var(--accent); }
+.strength-good { background: #3498db; }
+.strength-strong { background: var(--primary-light); }
+
+@keyframes loginFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- ===== LOGIN SCREEN ===== -->
+<div id="login-screen">
+  <div class="login-left">
+    <div class="login-brand">
+      <div class="login-logo-icon">🍱</div>
+      <div class="login-brand-text">
+        <div class="brand-name">TiffinTrack</div>
+        <div class="brand-tag">Smart Tiffin Management System</div>
+      </div>
+    </div>
+    <div class="login-desc">
+      <h2>Manage Your Tiffin Business Effortlessly</h2>
+      <p>Track daily deliveries, generate monthly bills, and manage payments — all in one place.</p>
+    </div>
+    <div class="login-features">
+      <div class="login-feat"><span class="fi">📅</span> Daily tiffin entry with calendar view</div>
+      <div class="login-feat"><span class="fi">🧾</span> Auto-generate monthly invoices &amp; bills</div>
+      <div class="login-feat"><span class="fi">💰</span> Track payments &amp; pending amounts</div>
+      <div class="login-feat"><span class="fi">⬇</span> Export PDF &amp; Excel reports instantly</div>
+    </div>
+    <!-- Developer credit on login left panel -->
+    <div class="login-dev-credit">
+      💻 Developed by <strong>Antariksh Sawarbandhe</strong>
+    </div>
+  </div>
+
+  <div class="login-right">
+    <div class="login-form-box">
+      <h3>Welcome Back 👋</h3>
+      <div class="login-sub">Sign in to your TiffinTrack account</div>
+
+      <div class="login-role-tabs">
+        <button class="role-tab active" id="tab-admin" onclick="selectRole('admin')">🔑 Admin</button>
+        <button class="role-tab" id="tab-viewer" onclick="selectRole('viewer')">👁 View Only</button>
+      </div>
+
+      <div class="login-error" id="login-error">❌ Incorrect username or password. Please try again.</div>
+
+      <div class="login-field">
+        <label>USERNAME</label>
+        <div class="login-input-wrap">
+          <span class="login-input-icon">👤</span>
+          <input type="text" id="login-user" placeholder="Enter username" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+      </div>
+      <div class="login-field">
+        <label>PASSWORD</label>
+        <div class="login-input-wrap">
+          <span class="login-input-icon">🔒</span>
+          <input type="password" id="login-pass" placeholder="Enter password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+          <button class="pass-toggle" onclick="togglePass()" title="Show/Hide password" type="button">👁</button>
+        </div>
+      </div>
+
+      <button class="btn-login" id="login-btn" onclick="doLogin()">
+        <span id="login-btn-text">🔐 Sign In</span>
+      </button>
+
+      <div class="login-footer">
+        TiffinTrack v4.0 &copy; 2025 &nbsp;|&nbsp; All data stored locally
+      </div>
+      <!-- Developer credit in login right panel footer -->
+      <div class="login-footer-dev">
+        💻 Website developed by <span>Antariksh Sawarbandhe</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== APP SCREEN ===== -->
+<div id="app-screen">
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="brand">
+          <div class="logo-icon">🍱</div>
+          TiffinTrack
+        </div>
+        <div class="tagline">Smart Tiffin Management System</div>
+      </div>
+
+      <div class="month-picker">
+        <label>Current Period</label>
+        <select id="month-sel" onchange="changeMonth()"></select>
+        <select id="year-sel" onchange="changeMonth()"></select>
+      </div>
+
+      <nav>
+        <button class="nav-item active" onclick="switchTab('dashboard',this)"><span class="nav-icon">📊</span> Dashboard</button>
+        <button class="nav-item" id="nav-rates" onclick="switchTab('rates',this)"><span class="nav-icon">💰</span> Rates Setup</button>
+        <button class="nav-item" id="nav-customers" onclick="switchTab('customers',this)"><span class="nav-icon">👥</span> Customers</button>
+        <button class="nav-item" onclick="switchTab('tiffins',this)"><span class="nav-icon">📅</span> Tiffin Entry</button>
+        <button class="nav-item" onclick="switchTab('billing',this)"><span class="nav-icon">🧾</span> Billing</button>
+        <button class="nav-item" onclick="switchTab('reports',this)"><span class="nav-icon">📄</span> Reports</button>
+        <button class="nav-item" id="nav-settings" onclick="switchTab('settings',this)"><span class="nav-icon">⚙️</span> Settings</button>
+      </nav>
+
+      <!-- Sidebar footer with developer credit -->
+      <div class="sidebar-footer">
+        <div class="sidebar-footer-copy">TiffinTrack v4.0 &copy; 2025</div>
+        <div class="sidebar-dev-credit">💻 Developed by<br><strong>Antariksh Sawarbandhe</strong></div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+          <div>
+            <div class="topbar-title" id="topbar-title">Dashboard</div>
+            <div class="topbar-sub" id="topbar-sub"></div>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <div class="user-badge" id="user-badge">
+            <div class="user-avatar" id="user-avatar">A</div>
+            <span id="user-name-disp">Admin</span>
+            <span class="role-badge role-admin" id="role-disp">Admin</span>
+          </div>
+          <button class="btn btn-sm" id="btn-pdf" onclick="exportPDF()">⬇ PDF</button>
+          <button class="btn btn-sm btn-accent" id="btn-excel" onclick="exportExcel()">⬇ Excel</button>
+          <button class="btn-logout" onclick="doLogout()">🚪 Logout</button>
+        </div>
+      </div>
+
+      <div class="content">
+
+        <!-- ===== DASHBOARD ===== -->
+        <div class="panel active" id="tab-dashboard">
+          <div class="metrics-grid" id="dash-metrics"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;flex-wrap:wrap">
+            <div class="card">
+              <div class="card-title"><span class="dot"></span> Today's Tiffin Summary</div>
+              <div id="today-summary"></div>
+            </div>
+            <div class="card">
+              <div class="card-title"><span class="dot" style="background:#c0392b"></span> Pending Payments</div>
+              <div id="pending-list"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title"><span class="dot" style="background:var(--accent)"></span> All Customers — Monthly Overview</div>
+            <div class="table-wrap" id="overview-table"></div>
+          </div>
+        </div>
+
+        <!-- ===== RATES ===== -->
+        <div class="panel" id="tab-rates">
+          <div id="rates-viewer-notice"></div>
+          <div class="card" id="rates-card">
+            <div class="card-title"><span class="dot"></span> Tiffin Rate Configuration</div>
+            <div class="field-grid-4" id="rates-inputs">
+              <div class="field"><label class="lbl">🌅 Breakfast Rate (₹)</label><input type="number" id="rate-b" value="30" min="0" onchange="saveRates()"></div>
+              <div class="field"><label class="lbl">☀ Lunch Rate (₹)</label><input type="number" id="rate-l" value="60" min="0" onchange="saveRates()"></div>
+              <div class="field"><label class="lbl">🌙 Dinner Rate (₹)</label><input type="number" id="rate-d" value="50" min="0" onchange="saveRates()"></div>
+              <div class="field"><label class="lbl">➕ Extra Tiffin (₹)</label><input type="number" id="rate-e" value="70" min="0" onchange="saveRates()"></div>
+            </div>
+            <div class="rate-info">
+              <span>Full Day (B+L+D): <strong id="full-day-rate">₹140</strong></span>
+              <span>Per Meal Avg: <strong id="avg-rate">₹47</strong></span>
+              <span>Formula: Daily Total = B Rate + L Rate + D Rate + (Extra × ₹<span id="extra-rate-show">70</span>)</span>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title"><span class="dot"></span> Rate Preview</div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Meal Type</th><th>Rate</th><th>Monthly (26 days avg)</th><th>Monthly (30 days avg)</th></tr></thead>
+                <tbody id="rate-preview"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== CUSTOMERS ===== -->
+        <div class="panel" id="tab-customers">
+          <div id="cust-viewer-notice"></div>
+          <div class="card" id="add-cust-card">
+            <div class="card-title"><span class="dot"></span> Add New Customer</div>
+            <div class="field-grid">
+              <div class="field"><label class="lbl">Customer Name *</label><input type="text" id="cust-name" placeholder="e.g. Ramesh Sharma"></div>
+              <div class="field"><label class="lbl">Phone Number</label><input type="text" id="cust-phone" placeholder="e.g. 9876543210"></div>
+            </div>
+            <div class="field-grid">
+              <div class="field"><label class="lbl">Address</label><input type="text" id="cust-addr" placeholder="Optional"></div>
+              <div class="field">
+                <label class="lbl">Active Meals</label>
+                <div class="meal-checks">
+                  <label><input type="checkbox" id="m-b"> 🌅 Breakfast</label>
+                  <label><input type="checkbox" id="m-l" checked> ☀ Lunch</label>
+                  <label><input type="checkbox" id="m-d" checked> 🌙 Dinner</label>
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="addCustomer()">+ Add Customer</button>
+          </div>
+          <div class="card">
+            <div class="card-title"><span class="dot"></span> Customer List (<span id="cust-count">0</span>)</div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>#</th><th>Name</th><th>Phone</th><th>Address</th><th>Meals</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody id="cust-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== TIFFIN ENTRY ===== -->
+        <div class="panel" id="tab-tiffins">
+          <div class="card">
+            <div class="cal-header">
+              <div class="cal-nav">
+                <button onclick="calPrev()">&#8592;</button>
+                <div class="cal-month-label" id="cal-month-label"></div>
+                <button onclick="calNext()">&#8594;</button>
+              </div>
+              <button class="btn btn-sm btn-primary" onclick="goToToday()">Today</button>
+            </div>
+            <div class="cal-cust-bar">
+              <label class="lbl">Customer:</label>
+              <select id="cal-cust" style="min-width:180px;width:auto" onchange="renderCalendar()"></select>
+              <span style="font-size:12px;color:var(--text3);margin-left:4px">— Click any date to add/edit tiffin</span>
+            </div>
+            <div class="cal-legend">
+              <span><span class="leg-dot pill-b"></span> Breakfast</span>
+              <span><span class="leg-dot pill-l"></span> Lunch</span>
+              <span><span class="leg-dot pill-d"></span> Dinner</span>
+              <span><span class="leg-dot pill-e"></span> Extra</span>
+              <span><span class="leg-dot" style="background:var(--green-bg);border:2px solid var(--primary-light)"></span> Today</span>
+              <span><span class="leg-dot" style="background:#f0fdf8;border:1.5px solid #b2dfc8"></span> Has Entry</span>
+            </div>
+            <div class="cal-grid" id="cal-day-names"></div>
+            <div style="height:8px"></div>
+            <div class="cal-grid" id="cal-cells"></div>
+            <div style="margin-top:14px;padding:12px 16px;background:var(--surface2);border-radius:10px;display:flex;gap:20px;flex-wrap:wrap;font-size:13px" id="cal-month-summary"></div>
+          </div>
+          <div class="card">
+            <div class="card-title"><span class="dot"></span> Monthly Tiffin List</div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px">
+              <div class="field" style="min-width:180px"><label class="lbl">Customer</label><select id="grid-cust" onchange="renderGrid()"></select></div>
+            </div>
+            <div id="tiffin-grid"></div>
+          </div>
+        </div>
+
+        <!-- TIFFIN MODAL -->
+        <div class="modal-backdrop" id="tiffin-modal" onclick="closeModal(event)">
+          <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-title" id="modal-title">Add Tiffin</div>
+            <div class="modal-sub" id="modal-sub"></div>
+            <div class="modal-meal-row" id="row-b" onclick="toggleMeal('b')">
+              <div class="meal-row-left">
+                <span class="meal-emoji">🌅</span>
+                <div><div class="meal-name">Breakfast</div><div class="meal-price" id="modal-b-price">₹30</div></div>
+              </div>
+              <div class="meal-toggle" id="tog-b"></div>
+            </div>
+            <div class="modal-meal-row" id="row-l" onclick="toggleMeal('l')">
+              <div class="meal-row-left">
+                <span class="meal-emoji">☀️</span>
+                <div><div class="meal-name">Lunch</div><div class="meal-price" id="modal-l-price">₹60</div></div>
+              </div>
+              <div class="meal-toggle" id="tog-l"></div>
+            </div>
+            <div class="modal-meal-row" id="row-d" onclick="toggleMeal('d')">
+              <div class="meal-row-left">
+                <span class="meal-emoji">🌙</span>
+                <div><div class="meal-name">Dinner</div><div class="meal-price" id="modal-d-price">₹50</div></div>
+              </div>
+              <div class="meal-toggle" id="tog-d"></div>
+            </div>
+            <div class="extra-row">
+              <div class="meal-row-left">
+                <span class="meal-emoji">➕</span>
+                <div><div class="meal-name">Extra Tiffins</div><div class="meal-price" id="modal-e-price">₹70 each</div></div>
+              </div>
+              <div class="extra-ctrl">
+                <button onclick="changeExtra(-1)">−</button>
+                <span class="extra-val" id="extra-val">0</span>
+                <button onclick="changeExtra(1)">+</button>
+              </div>
+            </div>
+            <div class="modal-total-box">
+              <span class="tl">Daily Total</span>
+              <span class="tv" id="modal-total">₹0</span>
+            </div>
+            <div class="modal-actions">
+              <button class="btn" onclick="closeModalDirect()">Cancel</button>
+              <button class="btn btn-danger btn-sm" onclick="clearModalEntry()" style="flex:0;padding:9px 14px">Clear</button>
+              <button class="btn btn-primary" id="modal-save-btn" onclick="saveModalEntry()">💾 Save</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== BILLING ===== -->
+        <div class="panel" id="tab-billing">
+          <div class="card">
+            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:16px">
+              <div class="field" style="min-width:200px"><label class="lbl">Select Customer</label><select id="bill-cust" onchange="renderBill()"></select></div>
+            </div>
+            <div id="bill-area"></div>
+          </div>
+        </div>
+
+        <!-- ===== REPORTS ===== -->
+        <div class="panel" id="tab-reports">
+          <div class="card">
+            <div class="card-title"><span class="dot"></span> Download Reports</div>
+            <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Export monthly data for all customers in PDF or Excel format.</p>
+            <div class="btn-row">
+              <button class="btn btn-accent" onclick="exportPDF()">⬇ Download PDF Invoice</button>
+              <button class="btn btn-primary" onclick="exportExcel()">⬇ Download Excel Sheet</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title"><span class="dot"></span> Monthly Summary — All Customers</div>
+            <div class="table-wrap" id="report-table"></div>
+          </div>
+        </div>
+
+        <!-- ===== SETTINGS ===== -->
+        <div class="panel" id="tab-settings">
+          <div id="settings-viewer-notice"></div>
+          <div id="settings-content"></div>
+        </div>
+
+      </div>
+
+      <!-- App footer with developer credit -->
+      <div class="app-footer">
+        <div class="app-footer-copy">TiffinTrack v4.0 &copy; 2025 — All data stored locally</div>
+        <div class="app-footer-dev">💻 Website developed by <strong>Antariksh Sawarbandhe</strong></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== PASSWORD STORAGE =====================
+function loadPasswords() {
+  try { const saved = localStorage.getItem('tt_passwords'); if(saved) return JSON.parse(saved); } catch(e) {}
+  return { admin: 'admin123', viewer: 'view123' };
+}
+function savePasswordsToDisk(obj) { localStorage.setItem('tt_passwords', JSON.stringify(obj)); }
+
+// ===================== CONSTANTS =====================
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+let currentUser = null;
+
+// ===================== LOGIN =====================
+function selectRole(role) {
+  document.getElementById('tab-admin').classList.toggle('active', role==='admin');
+  document.getElementById('tab-viewer').classList.toggle('active', role==='viewer');
+  document.getElementById('login-user').value = role === 'admin' ? 'admin' : 'viewer';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-error').classList.remove('show');
+}
+
+function togglePass() { const p = document.getElementById('login-pass'); p.type = p.type === 'password' ? 'text' : 'password'; }
+
+function doLogin() {
+  const u = document.getElementById('login-user').value.trim().toLowerCase();
+  const p = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-error');
+  const btn = document.getElementById('login-btn');
+  const pwds = loadPasswords();
+  errEl.classList.remove('show');
+  if(!u || !p) { errEl.textContent='❌ Please enter username and password.'; errEl.classList.add('show'); return; }
+  const USERS = {
+    admin:  { password: pwds.admin,  role: 'admin',  name: 'Admin' },
+    viewer: { password: pwds.viewer, role: 'viewer', name: 'Viewer' }
+  };
+  const user = USERS[u];
+  if(!user || user.password !== p) {
+    errEl.textContent='❌ Incorrect username or password. Please try again.';
+    errEl.classList.add('show');
+    document.getElementById('login-pass').value='';
+    return;
+  }
+  currentUser = { username: u, role: user.role, name: user.name };
+  btn.classList.add('loading');
+  document.getElementById('login-btn-text').textContent = '✓ Signing in...';
+  setTimeout(() => {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'block';
+    applyRoleUI(); init();
+    btn.classList.remove('loading');
+    document.getElementById('login-btn-text').textContent = '🔐 Sign In';
+  }, 700);
+}
+
+function doLogout() {
+  if(!confirm('Sign out of TiffinTrack?')) return;
+  currentUser = null;
+  document.getElementById('app-screen').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-error').classList.remove('show');
+  selectRole('admin');
+}
+
+function applyRoleUI() {
+  const isAdmin = currentUser.role === 'admin';
+  document.getElementById('user-avatar').textContent = currentUser.name.charAt(0).toUpperCase();
+  document.getElementById('user-name-disp').textContent = currentUser.name;
+  const rBadge = document.getElementById('role-disp');
+  rBadge.textContent = isAdmin ? 'Admin' : 'View Only';
+  rBadge.className = 'role-badge ' + (isAdmin ? 'role-admin' : 'role-viewer');
+  if(!isAdmin) {
+    document.getElementById('nav-rates').classList.add('disabled');
+    document.getElementById('nav-customers').classList.add('disabled');
+    document.getElementById('nav-settings').classList.add('disabled');
+    document.getElementById('rates-viewer-notice').innerHTML = '<div class="viewer-notice">👁 View-only mode — Rate changes are restricted to Admin.</div>';
+    document.getElementById('cust-viewer-notice').innerHTML = '<div class="viewer-notice">👁 View-only mode — Adding/deleting customers is restricted to Admin.</div>';
+    document.getElementById('add-cust-card').classList.add('readonly-block');
+    document.getElementById('rates-inputs').classList.add('readonly-block');
+    document.getElementById('modal-save-btn').disabled = true;
+  }
+}
+
+// ===================== STATE =====================
+let S = { customers: [], tiffins: {}, payments: {}, rates: {b:30, l:60, d:50, e:70}, curMonth: new Date().getMonth(), curYear: new Date().getFullYear() };
+let calYear = new Date().getFullYear(), calMonth = new Date().getMonth();
+let modalState = { custId: null, date: null, b:0, l:0, d:0, e:0 };
+
+function load() { try { const d = localStorage.getItem('tt_v2'); if(d) S = {...S,...JSON.parse(d)}; } catch(e){} }
+function save() { try { localStorage.setItem('tt_v2', JSON.stringify(S)); } catch(e){} }
+
+function init() {
+  load(); calYear = S.curYear; calMonth = S.curMonth;
+  const ms = document.getElementById('month-sel'), ys = document.getElementById('year-sel');
+  ms.innerHTML = ''; ys.innerHTML = '';
+  MONTHS.forEach((m,i) => { const o = document.createElement('option'); o.value=i; o.text=m; if(i===S.curMonth) o.selected=true; ms.appendChild(o); });
+  for(let y=2023;y<=2028;y++) { const o = document.createElement('option'); o.value=y; o.text=y; if(y===S.curYear) o.selected=true; ys.appendChild(o); }
+  renderAll();
+}
+
+function toDateStr(d) { return d.toISOString().split('T')[0]; }
+function changeMonth() { S.curMonth = +document.getElementById('month-sel').value; S.curYear = +document.getElementById('year-sel').value; calMonth=S.curMonth; calYear=S.curYear; save(); renderAll(); }
+function daysInMonth(m,y) { return new Date(y,m+1,0).getDate(); }
+function tKey(id,dt) { return id+'|'+dt; }
+function pKey(id,m,y) { return id+'|'+m+'|'+y; }
+function getRates() { return S.rates; }
+function calcDaily(e) { const r=getRates(); return (e.b?r.b:0)+(e.l?r.l:0)+(e.d?r.d:0)+(e.e||0)*r.e; }
+
+function getMonthlyData(custId, m, y) {
+  const days = daysInMonth(m,y); let tb=0,tl=0,td=0,te=0,total=0; const rows=[];
+  for(let d=1;d<=days;d++) {
+    const dt=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const e=S.tiffins[tKey(custId,dt)]||{b:0,l:0,d:0,e:0}; const amt=calcDaily(e);
+    tb+=e.b?1:0; tl+=e.l?1:0; td+=e.d?1:0; te+=(e.e||0); total+=amt;
+    rows.push({date:dt,day:d,b:e.b?1:0,l:e.l?1:0,d:e.d?1:0,e:e.e||0,amt});
+  }
+  const paid=S.payments[pKey(custId,m,y)]||0;
+  return {rows,totalB:tb,totalL:tl,totalD:td,totalE:te,totalAmt:total,paid,pending:Math.max(0,total-paid)};
+}
+
+function switchTab(id, el) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+  const titles = {dashboard:'Dashboard',rates:'Rates Setup',customers:'Customers',tiffins:'Tiffin Entry',billing:'Billing',reports:'Reports',settings:'Settings'};
+  document.getElementById('topbar-title').textContent = titles[id]||'';
+  document.getElementById('topbar-sub').textContent = MONTHS[S.curMonth]+' '+S.curYear;
+  if(id==='tiffins') { populateCustSelects(); renderCalendar(); renderGrid(); }
+  if(id==='billing') { populateCustSelects(); renderBill(); }
+  if(id==='reports') { renderReportTable(); }
+  if(id==='settings') { renderSettingsPage(); }
+  if(window.innerWidth<768) closeSidebar();
+}
+
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('show'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
+
+function saveRates() {
+  if(currentUser && currentUser.role !== 'admin') { alert('Admin access required to change rates.'); return; }
+  S.rates = {b:+document.getElementById('rate-b').value||0, l:+document.getElementById('rate-l').value||0, d:+document.getElementById('rate-d').value||0, e:+document.getElementById('rate-e').value||0};
+  save(); renderRates(); renderAll();
+}
+function renderRates() {
+  const r=S.rates; ['b','l','d','e'].forEach(k=>document.getElementById('rate-'+k).value=r[k]);
+  document.getElementById('full-day-rate').textContent='₹'+(r.b+r.l+r.d);
+  document.getElementById('avg-rate').textContent='₹'+Math.round((r.b+r.l+r.d)/3);
+  document.getElementById('extra-rate-show').textContent=r.e;
+  const prev=document.getElementById('rate-preview');
+  const rows=[{name:'🌅 Breakfast',rate:r.b},{name:'☀ Lunch',rate:r.l},{name:'🌙 Dinner',rate:r.d},{name:'➕ Extra Tiffin',rate:r.e},{name:'📦 Full Day (B+L+D)',rate:r.b+r.l+r.d}];
+  prev.innerHTML=rows.map(row=>`<tr><td>${row.name}</td><td><strong>₹${row.rate}</strong></td><td>₹${row.rate*26}</td><td>₹${row.rate*30}</td></tr>`).join('');
+}
+
+function addCustomer() {
+  if(currentUser && currentUser.role !== 'admin') { alert('Admin access required.'); return; }
+  const name=document.getElementById('cust-name').value.trim();
+  if(!name){alert('Customer name required!');return;}
+  S.customers.push({id:'c'+Date.now(),name,phone:document.getElementById('cust-phone').value.trim(),addr:document.getElementById('cust-addr').value.trim(),meals:{b:document.getElementById('m-b').checked,l:document.getElementById('m-l').checked,d:document.getElementById('m-d').checked},active:true});
+  ['cust-name','cust-phone','cust-addr'].forEach(id=>document.getElementById(id).value='');
+  save(); renderAll();
+}
+function deleteCustomer(id) {
+  if(currentUser && currentUser.role !== 'admin') { alert('Admin access required.'); return; }
+  if(!confirm('Delete this customer?')) return;
+  S.customers=S.customers.filter(c=>c.id!==id); save(); renderAll();
+}
+function renderCustomerTable() {
+  const isAdmin = currentUser && currentUser.role === 'admin';
+  document.getElementById('cust-count').textContent=S.customers.length;
+  const tb=document.getElementById('cust-body');
+  if(!S.customers.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="e-icon">👥</div><p>No customers yet. Add your first customer above!</p></div></td></tr>';return;}
+  tb.innerHTML=S.customers.map((c,i)=>`<tr><td>${i+1}</td><td><strong>${c.name}</strong></td><td>${c.phone||'—'}</td><td style="font-size:12px;color:var(--text3)">${c.addr||'—'}</td><td>${[c.meals.b&&'B',c.meals.l&&'L',c.meals.d&&'D'].filter(Boolean).map(m=>`<span class="badge badge-green" style="margin:1px">${m}</span>`).join(' ')}</td><td><span class="badge badge-green">● Active</span></td><td>${isAdmin?`<button class="btn btn-sm btn-danger" onclick="deleteCustomer('${c.id}')">🗑 Delete</button>`:'<span style="color:var(--text3);font-size:12px">—</span>'}</td></tr>`).join('');
+}
+
+function populateCustSelects() {
+  ['cal-cust','grid-cust','bill-cust'].forEach(id=>{
+    const sel=document.getElementById(id); if(!sel) return;
+    const prev=sel.value;
+    sel.innerHTML=S.customers.length?S.customers.map(c=>`<option value="${c.id}">${c.name}</option>`).join(''):'<option value="">— No customers —</option>';
+    if(prev) sel.value=prev;
+  });
+}
+
+function renderCalendar() {
+  const custId = document.getElementById('cal-cust').value;
+  const m = calMonth, y = calYear, today = toDateStr(new Date());
+  document.getElementById('cal-month-label').textContent = MONTHS[m]+' '+y;
+  document.getElementById('cal-day-names').innerHTML = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="cal-day-name">${d}</div>`).join('');
+  const firstDay = new Date(y,m,1).getDay(), days = daysInMonth(m,y);
+  let cells = '', sumB=0,sumL=0,sumD=0,sumE=0,sumTotal=0;
+  for(let i=0;i<firstDay;i++) cells += '<div class="cal-cell empty"></div>';
+  for(let d=1;d<=days;d++) {
+    const dt=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const e = custId ? (S.tiffins[tKey(custId,dt)]||{b:0,l:0,d:0,e:0}) : {b:0,l:0,d:0,e:0};
+    const amt = calcDaily(e), isToday = dt===today, hasEntry = amt > 0;
+    sumB+=e.b?1:0; sumL+=e.l?1:0; sumD+=e.d?1:0; sumE+=(e.e||0); sumTotal+=amt;
+    const pills = [e.b?'<span class="cal-pill pill-b">B</span>':'', e.l?'<span class="cal-pill pill-l">L</span>':'', e.d?'<span class="cal-pill pill-d">D</span>':'', (e.e||0)>0?`<span class="cal-pill pill-e">+${e.e}</span>`:''].filter(Boolean).join('');
+    cells+=`<div class="cal-cell${isToday?' today':''}${hasEntry?' has-entry':''}" onclick="openDayModal('${custId||''}','${dt}')">
+      ${isToday?'<span class="cal-today-badge">Today</span>':''}
+      <div class="cal-date-num">${d}</div>
+      <div class="cal-meals">${pills}</div>
+      ${amt>0?`<div class="cal-total">₹${amt}</div>`:''}
+    </div>`;
+  }
+  document.getElementById('cal-cells').innerHTML=cells;
+  document.getElementById('cal-month-summary').innerHTML=custId?`<span>🌅 Breakfast: <strong>${sumB}</strong></span><span>☀ Lunch: <strong>${sumL}</strong></span><span>🌙 Dinner: <strong>${sumD}</strong></span><span>➕ Extra: <strong>${sumE}</strong></span><span style="color:var(--primary);font-weight:700">💰 Monthly Total: ₹${sumTotal}</span>`:'<span style="color:var(--text3)">Select a customer to see monthly summary</span>';
+}
+
+function calPrev() { calMonth--; if(calMonth<0){calMonth=11;calYear--;} renderCalendar(); }
+function calNext() { calMonth++; if(calMonth>11){calMonth=0;calYear++;} renderCalendar(); }
+function goToToday() { calMonth=new Date().getMonth(); calYear=new Date().getFullYear(); renderCalendar(); }
+
+function openDayModal(custId, date) {
+  if(!custId) { alert('Please select a customer first.'); return; }
+  const cust = S.customers.find(c=>c.id===custId), r = getRates();
+  const e = S.tiffins[tKey(custId,date)]||{b:0,l:0,d:0,e:0};
+  modalState = { custId, date, b:e.b?1:0, l:e.l?1:0, d:e.d?1:0, e:e.e||0 };
+  const dateObj = new Date(date+'T00:00:00');
+  document.getElementById('modal-title').textContent = `${['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][dateObj.getDay()]}, ${date}`;
+  document.getElementById('modal-sub').textContent = cust ? `Customer: ${cust.name}` : '';
+  document.getElementById('modal-b-price').textContent='₹'+r.b;
+  document.getElementById('modal-l-price').textContent='₹'+r.l;
+  document.getElementById('modal-d-price').textContent='₹'+r.d;
+  document.getElementById('modal-e-price').textContent='₹'+r.e+' each';
+  updateModalUI();
+  document.getElementById('tiffin-modal').classList.add('open');
+}
+
+function updateModalUI() {
+  ['b','l','d'].forEach(k=>{ document.getElementById('row-'+k).classList.toggle('selected', !!modalState[k]); document.getElementById('tog-'+k).textContent = modalState[k]?'✓':''; });
+  document.getElementById('extra-val').textContent = modalState.e;
+  document.getElementById('modal-total').textContent = '₹'+calcDaily(modalState);
+}
+
+function toggleMeal(k) { if(currentUser && currentUser.role !== 'admin') { alert('Admin access required.'); return; } modalState[k] = modalState[k] ? 0 : 1; updateModalUI(); }
+function changeExtra(delta) { if(currentUser && currentUser.role !== 'admin') { alert('Admin access required.'); return; } modalState.e = Math.max(0, (modalState.e||0)+delta); updateModalUI(); }
+
+function saveModalEntry() {
+  if(currentUser && currentUser.role !== 'admin') { alert('Admin access required.'); return; }
+  S.tiffins[tKey(modalState.custId, modalState.date)] = {b:modalState.b,l:modalState.l,d:modalState.d,e:modalState.e};
+  save(); renderCalendar(); renderGrid(); renderDashboard(); closeModalDirect();
+  showToast('✓ Entry saved!', 'var(--primary)');
+}
+
+function clearModalEntry() { if(currentUser && currentUser.role !== 'admin') { alert('Admin access required.'); return; } modalState.b=0; modalState.l=0; modalState.d=0; modalState.e=0; updateModalUI(); }
+function closeModal(e) { if(e.target===document.getElementById('tiffin-modal')) closeModalDirect(); }
+function closeModalDirect() { document.getElementById('tiffin-modal').classList.remove('open'); }
+
+function showToast(msg, color) {
+  const b=document.createElement('div');
+  b.style.cssText=`position:fixed;top:70px;right:20px;background:${color};color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.2);animation:fadeIn 0.2s ease`;
+  b.textContent=msg; document.body.appendChild(b); setTimeout(()=>b.remove(),2500);
+}
+
+function renderGrid() {
+  const custId=document.getElementById('grid-cust').value, m=S.curMonth, y=S.curYear;
+  if(!custId){document.getElementById('tiffin-grid').innerHTML='<div class="empty"><div class="e-icon">📅</div><p>Select a customer</p></div>';return;}
+  const data=getMonthlyData(custId,m,y);
+  let html='<div class="table-wrap"><table><thead><tr><th>Date</th><th>🌅 B</th><th>☀ L</th><th>🌙 D</th><th>Extra</th><th>Daily Total</th><th>Action</th></tr></thead><tbody>';
+  data.rows.forEach(row=>{
+    const isToday=row.date===toDateStr(new Date());
+    html+=`<tr style="${isToday?'background:#f0fdf8;':''}"><td>${MS[m]} ${row.day}${isToday?' <span class="badge badge-green">Today</span>':''}</td><td>${row.b?'<span class="dot-yes">✓</span>':'<span class="dot-no">—</span>'}</td><td>${row.l?'<span class="dot-yes">✓</span>':'<span class="dot-no">—</span>'}</td><td>${row.d?'<span class="dot-yes">✓</span>':'<span class="dot-no">—</span>'}</td><td>${row.e>0?`<span class="badge badge-amber">${row.e}</span>`:'—'}</td><td style="font-weight:${row.amt>0?600:400};color:${row.amt>0?'var(--primary)':'var(--text3)'}">₹${row.amt}</td><td><button class="btn btn-sm" onclick="openDayModal('${custId}','${row.date}')">✏ Edit</button></td></tr>`;
+  });
+  html+=`<tr class="total-row"><td colspan="5"><strong>Monthly Total</strong></td><td colspan="2"><strong>₹${data.totalAmt}</strong> (B:${data.totalB} L:${data.totalL} D:${data.totalD} Extra:${data.totalE})</td></tr></tbody></table></div>`;
+  document.getElementById('tiffin-grid').innerHTML=html;
+}
+
+function renderBill() {
+  const custId=document.getElementById('bill-cust').value, m=S.curMonth, y=S.curYear;
+  if(!custId){document.getElementById('bill-area').innerHTML='<div class="empty"><p>Select a customer</p></div>';return;}
+  const cust=S.customers.find(c=>c.id===custId), data=getMonthlyData(custId,m,y), r=getRates();
+  const activeRows=data.rows.filter(row=>row.amt>0||row.b||row.l||row.d||row.e);
+  const isAdmin = currentUser && currentUser.role==='admin';
+  document.getElementById('bill-area').innerHTML=`
+    <div class="bill-header">
+      <div><div class="bill-brand">🍱 TiffinTrack</div><div class="bill-meta">Monthly Invoice — ${MONTHS[m]} ${y}</div></div>
+      <div style="text-align:right"><div style="font-size:16px;font-weight:700">${cust.name}</div>${cust.phone?`<div style="font-size:12px;color:var(--text3)">📞 ${cust.phone}</div>`:''}${cust.addr?`<div style="font-size:12px;color:var(--text3)">📍 ${cust.addr}</div>`:''}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:18px">
+      <div class="metric-card" style="--stripe:var(--primary-light)"><div class="metric-label">B Count</div><div class="metric-value" style="font-size:20px">${data.totalB}</div></div>
+      <div class="metric-card" style="--stripe:var(--accent)"><div class="metric-label">L Count</div><div class="metric-value" style="font-size:20px">${data.totalL}</div></div>
+      <div class="metric-card" style="--stripe:#8e44ad"><div class="metric-label">D Count</div><div class="metric-value" style="font-size:20px">${data.totalD}</div></div>
+      <div class="metric-card" style="--stripe:#e67e22"><div class="metric-label">Extra</div><div class="metric-value" style="font-size:20px">${data.totalE}</div></div>
+      <div class="metric-card" style="--stripe:var(--primary)"><div class="metric-label">Monthly Total</div><div class="metric-value" style="font-size:20px;color:var(--primary)">₹${data.totalAmt}</div></div>
+      <div class="metric-card" style="--stripe:var(--blue)"><div class="metric-label">Paid</div><div class="metric-value" style="font-size:20px;color:var(--blue)">₹${data.paid}</div></div>
+      <div class="metric-card" style="--stripe:${data.pending>0?'var(--red)':'var(--primary)'}"><div class="metric-label">Pending</div><div class="metric-value" style="font-size:20px;color:${data.pending>0?'var(--red)':'var(--primary)'}">₹${data.pending}</div></div>
+    </div>
+    ${isAdmin?`<div style="display:flex;gap:12px;align-items:flex-end;margin-bottom:16px;flex-wrap:wrap"><div class="field"><label class="lbl">Update Paid Amount (₹)</label><input type="number" id="pay-amt" value="${data.paid}" min="0" style="width:180px"></div><button class="btn btn-primary" onclick="updatePayment('${custId}')">💾 Save Payment</button></div>`:'<div class="viewer-notice">👁 Payment updates require Admin access.</div>'}
+    ${activeRows.length?`<div class="table-wrap"><table><thead><tr><th>Date</th><th>B</th><th>L</th><th>D</th><th>Extra</th><th>Daily Total</th></tr></thead><tbody>${activeRows.map(row=>`<tr><td>${row.date}</td><td>${row.b?'<span class="dot-yes">✓</span>':'<span class="dot-no">—</span>'}</td><td>${row.l?'<span class="dot-yes">✓</span>':'<span class="dot-no">—</span>'}</td><td>${row.d?'<span class="dot-yes">✓</span>':'<span class="dot-no">—</span>'}</td><td>${row.e||'—'}</td><td style="font-weight:600;color:var(--primary)">₹${row.amt}</td></tr>`).join('')}<tr class="total-row"><td colspan="5"><strong>Monthly Total (${MONTHS[m]} ${y})</strong></td><td><strong>₹${data.totalAmt}</strong></td></tr><tr class="paid-row"><td colspan="5" style="color:var(--blue)">Paid Amount</td><td style="color:var(--blue);font-weight:600">₹${data.paid}</td></tr><tr class="pend-row"><td colspan="5" style="color:${data.pending>0?'var(--red)':'var(--primary)'}">Pending Amount</td><td style="color:${data.pending>0?'var(--red)':'var(--primary)'};font-weight:600">₹${data.pending}</td></tr></tbody></table></div>`:`<div class="empty"><div class="e-icon">🍽</div><p>No tiffins recorded for ${MONTHS[m]} ${y}</p></div>`}
+    <div style="font-size:11px;color:var(--text3);margin-top:12px">Rate Card: Breakfast ₹${r.b} | Lunch ₹${r.l} | Dinner ₹${r.d} | Extra ₹${r.e}</div>
+  `;
+}
+
+function updatePayment(custId) {
+  if(currentUser && currentUser.role !== 'admin') { alert('Admin access required.'); return; }
+  S.payments[pKey(custId,S.curMonth,S.curYear)]=+document.getElementById('pay-amt').value||0;
+  save(); renderBill(); renderDashboard(); showToast('✓ Payment updated!', 'var(--blue)');
+}
+
+function renderDashboard() {
+  const m=S.curMonth, y=S.curYear, today=toDateStr(new Date());
+  let income=0,paid=0,pending=0,todayCount=0;
+  S.customers.forEach(c=>{ const data=getMonthlyData(c.id,m,y); income+=data.totalAmt; paid+=data.paid; pending+=data.pending; const e=S.tiffins[tKey(c.id,today)]||{b:0,l:0,d:0,e:0}; todayCount+=(e.b?1:0)+(e.l?1:0)+(e.d?1:0)+(e.e||0); });
+  document.getElementById('dash-metrics').innerHTML=`
+    <div class="metric-card" style="--stripe:#2d9e6e"><div class="metric-label">Total Customers</div><div class="metric-value">${S.customers.length}</div><div class="metric-icon">👥</div></div>
+    <div class="metric-card" style="--stripe:var(--accent)"><div class="metric-label">Today's Tiffins</div><div class="metric-value" style="color:var(--accent-dark)">${todayCount}</div><div class="metric-icon">🍱</div></div>
+    <div class="metric-card" style="--stripe:var(--primary)"><div class="metric-label">Monthly Income</div><div class="metric-value" style="color:var(--primary)">₹${income}</div><div class="metric-icon">💰</div></div>
+    <div class="metric-card" style="--stripe:var(--blue)"><div class="metric-label">Paid Amount</div><div class="metric-value" style="color:var(--blue)">₹${paid}</div><div class="metric-icon">✅</div></div>
+    <div class="metric-card" style="--stripe:${pending>0?'var(--red)':'var(--primary)'}"><div class="metric-label">Pending Amount</div><div class="metric-value" style="color:${pending>0?'var(--red)':'var(--primary)'}">₹${pending}</div><div class="metric-icon">⏳</div></div>
+  `;
+  const todayRows=S.customers.map(c=>{const e=S.tiffins[tKey(c.id,today)]||{b:0,l:0,d:0,e:0};const amt=calcDaily(e);return{name:c.name,b:e.b,l:e.l,d:e.d,ex:e.e||0,amt};}).filter(r=>r.b||r.l||r.d||r.ex);
+  document.getElementById('today-summary').innerHTML=todayRows.length?`<div class="table-wrap"><table><thead><tr><th>Customer</th><th>B</th><th>L</th><th>D</th><th>Extra</th><th>Total</th></tr></thead><tbody>${todayRows.map(r=>`<tr><td><strong>${r.name}</strong></td><td>${r.b?'✓':'—'}</td><td>${r.l?'✓':'—'}</td><td>${r.d?'✓':'—'}</td><td>${r.ex||'—'}</td><td style="font-weight:600;color:var(--primary)">₹${r.amt}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty"><div class="e-icon">🌅</div><p>No tiffins recorded today yet</p></div>';
+  const pendList=S.customers.map(c=>{const data=getMonthlyData(c.id,m,y);return{...c,pending:data.pending,total:data.totalAmt,paid:data.paid};}).filter(c=>c.pending>0).sort((a,b)=>b.pending-a.pending);
+  document.getElementById('pending-list').innerHTML=pendList.length?`<div class="table-wrap"><table><thead><tr><th>Customer</th><th>Total</th><th>Paid</th><th>Pending</th></tr></thead><tbody>${pendList.map(c=>`<tr><td><strong>${c.name}</strong></td><td>₹${c.total}</td><td style="color:var(--blue)">₹${c.paid}</td><td style="color:var(--red);font-weight:700">₹${c.pending}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty" style="color:var(--primary)"><div class="e-icon">🎉</div><p>All payments cleared!</p></div>';
+  document.getElementById('overview-table').innerHTML=`<table><thead><tr><th>#</th><th>Customer</th><th>B</th><th>L</th><th>D</th><th>Extra</th><th>Monthly Total</th><th>Paid</th><th>Pending</th></tr></thead><tbody>${S.customers.map((c,i)=>{const data=getMonthlyData(c.id,m,y);return`<tr><td>${i+1}</td><td><strong>${c.name}</strong></td><td>${data.totalB}</td><td>${data.totalL}</td><td>${data.totalD}</td><td>${data.totalE}</td><td style="font-weight:600;color:var(--primary)">₹${data.totalAmt}</td><td style="color:var(--blue)">₹${data.paid}</td><td style="color:${data.pending>0?'var(--red)':'var(--primary)'};font-weight:600">₹${data.pending}</td></tr>`;}).join('')}${S.customers.length?`<tr class="total-row"><td colspan="6"><strong>Grand Total</strong></td><td><strong>₹${S.customers.reduce((a,c)=>a+getMonthlyData(c.id,m,y).totalAmt,0)}</strong></td><td><strong>₹${S.customers.reduce((a,c)=>a+getMonthlyData(c.id,m,y).paid,0)}</strong></td><td><strong>₹${S.customers.reduce((a,c)=>a+getMonthlyData(c.id,m,y).pending,0)}</strong></td></tr>`:''}</tbody></table>`;
+}
+
+function renderReportTable() {
+  const m=S.curMonth, y=S.curYear;
+  if(!S.customers.length){document.getElementById('report-table').innerHTML='<div class="empty"><p>No customers</p></div>';return;}
+  let gT=0,gP=0,gN=0;
+  let html=`<table><thead><tr><th>#</th><th>Customer</th><th>Phone</th><th>B</th><th>L</th><th>D</th><th>Extra</th><th>Monthly Total</th><th>Paid</th><th>Pending</th><th>Status</th></tr></thead><tbody>`;
+  S.customers.forEach((c,i)=>{ const data=getMonthlyData(c.id,m,y); gT+=data.totalAmt;gP+=data.paid;gN+=data.pending; html+=`<tr><td>${i+1}</td><td><strong>${c.name}</strong></td><td>${c.phone||'—'}</td><td>${data.totalB}</td><td>${data.totalL}</td><td>${data.totalD}</td><td>${data.totalE}</td><td style="font-weight:700;color:var(--primary)">₹${data.totalAmt}</td><td style="color:var(--blue);font-weight:600">₹${data.paid}</td><td style="color:${data.pending>0?'var(--red)':'var(--primary)'};font-weight:700">₹${data.pending}</td><td><span class="badge ${data.pending>0?'badge-red':'badge-green'}">${data.pending>0?'Pending':'Cleared'}</span></td></tr>`; });
+  html+=`<tr class="total-row"><td colspan="7"><strong>Grand Total</strong></td><td><strong>₹${gT}</strong></td><td><strong>₹${gP}</strong></td><td><strong>₹${gN}</strong></td><td></td></tr></tbody></table>`;
+  document.getElementById('report-table').innerHTML=html;
+}
+
+// ===================== SETTINGS =====================
+function renderSettingsPage() {
+  const isAdmin = currentUser && currentUser.role === 'admin';
+  const pwds = loadPasswords();
+  const container = document.getElementById('settings-content');
+
+  if(isAdmin) {
+    container.innerHTML = `
+      <div class="pwd-section">
+        <div class="pwd-section-title">🔑 Current Login Credentials</div>
+        <div class="pwd-section-sub">These are the active passwords for both accounts.</div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap">
+          <div class="pwd-current-display" style="flex:1;min-width:200px">
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);margin-bottom:4px">🔑 Admin Account</div>
+            <div style="font-size:15px;font-weight:700;font-family:monospace" id="disp-admin-pwd">${pwds.admin}</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px">username: admin</div>
+          </div>
+          <div class="pwd-current-display" style="flex:1;min-width:200px;background:var(--blue-bg);border-color:rgba(26,95,138,0.15)">
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--blue);margin-bottom:4px">👁 Viewer Account</div>
+            <div style="font-size:15px;font-weight:700;font-family:monospace" id="disp-viewer-pwd">${pwds.viewer}</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px">username: viewer</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pwd-section">
+        <div class="pwd-section-title">🔑 Change Admin Password</div>
+        <div class="pwd-section-sub">Update the password for the <strong>admin</strong> account.</div>
+        <div class="pwd-single-box">
+          <div class="pwd-account-header">
+            <div class="pwd-account-icon admin-icon">🔑</div>
+            <div>
+              <div class="pwd-account-name">Admin Account</div>
+              <div class="pwd-account-user">username: <strong>admin</strong></div>
+            </div>
+          </div>
+          <div class="pwd-field">
+            <label>NEW ADMIN PASSWORD</label>
+            <div class="pwd-input-wrap">
+              <input type="password" id="new-admin-pass" placeholder="Enter new admin password" oninput="checkStrength('admin');checkMatch('admin')">
+              <button class="pwd-eye" type="button" onclick="togglePwdEye('new-admin-pass',this)">👁</button>
+            </div>
+            <div class="pwd-strength"><div class="pwd-strength-bar" id="admin-strength-bar"></div></div>
+            <div class="pwd-strength-text" id="admin-strength-text" style="color:var(--text3)"></div>
+          </div>
+          <div class="pwd-field">
+            <label>CONFIRM ADMIN PASSWORD</label>
+            <div class="pwd-input-wrap">
+              <input type="password" id="confirm-admin-pass" placeholder="Repeat admin password" oninput="checkMatch('admin')">
+              <button class="pwd-eye" type="button" onclick="togglePwdEye('confirm-admin-pass',this)">👁</button>
+            </div>
+            <div class="pwd-match-hint" id="admin-match-hint"></div>
+          </div>
+          <div class="pwd-actions">
+            <button class="btn btn-primary" onclick="saveOnePassword('admin')">💾 Save Admin Password</button>
+            <button class="btn btn-accent" onclick="autoGenOne('admin')">✨ Auto-generate</button>
+            <button class="btn" onclick="clearOnePwdFields('admin')">✕ Clear</button>
+          </div>
+          <div id="admin-pwd-feedback" style="margin-top:10px;font-size:12px;display:none"></div>
+        </div>
+      </div>
+
+      <div class="pwd-section">
+        <div class="pwd-section-title">👁 Change Viewer Password</div>
+        <div class="pwd-section-sub">Update the password for the <strong>viewer</strong> account.</div>
+        <div class="pwd-single-box">
+          <div class="pwd-account-header">
+            <div class="pwd-account-icon viewer-icon">👁</div>
+            <div>
+              <div class="pwd-account-name">Viewer Account</div>
+              <div class="pwd-account-user">username: <strong>viewer</strong></div>
+            </div>
+          </div>
+          <div class="pwd-field">
+            <label>NEW VIEWER PASSWORD</label>
+            <div class="pwd-input-wrap">
+              <input type="password" id="new-viewer-pass" placeholder="Enter new viewer password" oninput="checkStrength('viewer');checkMatch('viewer')">
+              <button class="pwd-eye" type="button" onclick="togglePwdEye('new-viewer-pass',this)">👁</button>
+            </div>
+            <div class="pwd-strength"><div class="pwd-strength-bar" id="viewer-strength-bar"></div></div>
+            <div class="pwd-strength-text" id="viewer-strength-text" style="color:var(--text3)"></div>
+          </div>
+          <div class="pwd-field">
+            <label>CONFIRM VIEWER PASSWORD</label>
+            <div class="pwd-input-wrap">
+              <input type="password" id="confirm-viewer-pass" placeholder="Repeat viewer password" oninput="checkMatch('viewer')">
+              <button class="pwd-eye" type="button" onclick="togglePwdEye('confirm-viewer-pass',this)">👁</button>
+            </div>
+            <div class="pwd-match-hint" id="viewer-match-hint"></div>
+          </div>
+          <div class="pwd-actions">
+            <button class="btn btn-primary" onclick="saveOnePassword('viewer')">💾 Save Viewer Password</button>
+            <button class="btn btn-accent" onclick="autoGenOne('viewer')">✨ Auto-generate</button>
+            <button class="btn" onclick="clearOnePwdFields('viewer')">✕ Clear</button>
+          </div>
+          <div id="viewer-pwd-feedback" style="margin-top:10px;font-size:12px;display:none"></div>
+        </div>
+      </div>
+    `;
+  } else {
+    container.innerHTML = `
+      <div class="viewer-notice" style="margin-bottom:20px">👁 You are logged in as <strong>Viewer</strong>. Password management is restricted to Admin only.</div>
+      <div class="pwd-section">
+        <div class="pwd-section-title">👁 Your Account Info</div>
+        <div class="pwd-section-sub">Details for your viewer account.</div>
+        <div class="pwd-current-display" style="max-width:320px;background:var(--blue-bg);border-color:rgba(26,95,138,0.15)">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--blue);margin-bottom:4px">👁 Viewer Account</div>
+          <div style="font-size:14px;font-weight:600">Username: <strong>viewer</strong></div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px">To change your password, please ask the Admin.</div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+// ===================== PASSWORD HELPERS =====================
+function togglePwdEye(inputId, btn) {
+  const inp = document.getElementById(inputId);
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  btn.style.opacity = inp.type === 'text' ? '0.8' : '0.4';
+}
+
+function getPasswordStrength(pwd) {
+  if(!pwd) return { score: 0, label: '', cls: '', pct: 0 };
+  let score = 0;
+  if(pwd.length >= 6) score++; if(pwd.length >= 10) score++;
+  if(/[A-Z]/.test(pwd)) score++; if(/[0-9]/.test(pwd)) score++; if(/[^A-Za-z0-9]/.test(pwd)) score++;
+  const levels = [
+    {label:'',cls:''},
+    {label:'Weak',cls:'strength-weak'},
+    {label:'Fair',cls:'strength-fair'},
+    {label:'Good',cls:'strength-good'},
+    {label:'Strong',cls:'strength-strong'},
+    {label:'Very Strong',cls:'strength-strong'}
+  ];
+  const lvl = levels[Math.min(score, 5)];
+  return { score, label: lvl.label, cls: lvl.cls, pct: (score/5)*100 };
+}
+
+function checkStrength(account) {
+  const el = document.getElementById('new-'+account+'-pass');
+  if(!el) return;
+  const str = getPasswordStrength(el.value);
+  const bar = document.getElementById(account+'-strength-bar'), txt = document.getElementById(account+'-strength-text');
+  if(bar) { bar.style.width = str.pct + '%'; bar.className = 'pwd-strength-bar ' + str.cls; }
+  if(txt) { txt.textContent = str.label; txt.style.color = str.score >= 3 ? 'var(--primary)' : str.score >= 2 ? 'var(--accent-dark)' : 'var(--red)'; }
+}
+
+function checkMatch(account) {
+  const p1el = document.getElementById('new-'+account+'-pass'), p2el = document.getElementById('confirm-'+account+'-pass'), hintEl = document.getElementById(account+'-match-hint');
+  if(!p1el || !p2el || !hintEl) return;
+  const p1 = p1el.value, p2 = p2el.value;
+  if(!p2) { hintEl.textContent=''; return; }
+  if(p1===p2) { hintEl.textContent='✓ Passwords match'; hintEl.style.color='var(--primary)'; }
+  else { hintEl.textContent='✗ Passwords do not match'; hintEl.style.color='var(--red)'; }
+}
+
+function saveOnePassword(account) {
+  if(currentUser && currentUser.role !== 'admin') { alert('Admin access required.'); return; }
+  const newPass = document.getElementById('new-'+account+'-pass').value;
+  const confPass = document.getElementById('confirm-'+account+'-pass').value;
+  const fbEl = document.getElementById(account+'-pwd-feedback');
+  fbEl.style.display = 'block';
+
+  if(!newPass) { fbEl.innerHTML='<div style="background:var(--red-bg);border:1px solid rgba(192,57,43,0.2);border-radius:9px;padding:10px 14px;color:var(--red)">❌ Please enter a new password.</div>'; return; }
+  if(newPass.length < 4) { fbEl.innerHTML='<div style="background:var(--red-bg);border:1px solid rgba(192,57,43,0.2);border-radius:9px;padding:10px 14px;color:var(--red)">❌ Password must be at least 4 characters.</div>'; return; }
+  if(newPass !== confPass) { fbEl.innerHTML='<div style="background:var(--red-bg);border:1px solid rgba(192,57,43,0.2);border-radius:9px;padding:10px 14px;color:var(--red)">❌ Passwords do not match.</div>'; return; }
+
+  const pwds = loadPasswords();
+  pwds[account] = newPass;
+  savePasswordsToDisk(pwds);
+
+  fbEl.innerHTML=`<div style="background:var(--green-bg);border:1px solid rgba(26,107,74,0.2);border-radius:9px;padding:10px 14px;color:var(--primary)">✅ ${account.charAt(0).toUpperCase()+account.slice(1)} password updated successfully!</div>`;
+  clearOnePwdFields(account);
+  const dispEl = document.getElementById('disp-'+account+'-pwd');
+  if(dispEl) dispEl.textContent = newPass;
+  showToast('✅ '+account+' password saved!', 'var(--primary)');
+}
+
+function autoGenOne(account) {
+  if(currentUser && currentUser.role !== 'admin') { alert('Admin access required.'); return; }
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789@#$!';
+  const len = account === 'admin' ? 12 : 10;
+  const gen = Array.from({length:len}, ()=>chars[Math.floor(Math.random()*chars.length)]).join('');
+
+  const newEl = document.getElementById('new-'+account+'-pass'), confEl = document.getElementById('confirm-'+account+'-pass');
+  newEl.value = gen; confEl.value = gen;
+  newEl.type = 'text'; confEl.type = 'text';
+  checkStrength(account); checkMatch(account);
+
+  const fbEl = document.getElementById(account+'-pwd-feedback');
+  fbEl.style.display='block';
+  fbEl.innerHTML=`<div style="background:var(--blue-bg);border:1px solid rgba(26,95,138,0.2);border-radius:9px;padding:10px 14px;color:var(--blue)">✨ <strong>Generated password:</strong> <code style="background:rgba(26,95,138,0.1);padding:2px 8px;border-radius:5px;font-family:monospace;font-size:13px">${gen}</code><br><span style="font-size:11px;opacity:0.8;margin-top:4px;display:block">⚠️ Copy this before clicking Save.</span></div>`;
+}
+
+function clearOnePwdFields(account) {
+  ['new-'+account+'-pass','confirm-'+account+'-pass'].forEach(id=>{
+    const el=document.getElementById(id); if(el){el.value='';el.type='password';}
+  });
+  const bar=document.getElementById(account+'-strength-bar'), txt=document.getElementById(account+'-strength-text'), hint=document.getElementById(account+'-match-hint');
+  if(bar){bar.style.width='0%';bar.className='pwd-strength-bar';}
+  if(txt) txt.textContent='';
+  if(hint) hint.textContent='';
+}
+
+// ===================== RENDER ALL =====================
+function renderAll() {
+  document.getElementById('topbar-sub').textContent=MONTHS[S.curMonth]+' '+S.curYear;
+  renderRates(); renderCustomerTable(); populateCustSelects(); renderDashboard();
+}
+
+// ===================== EXPORT PDF =====================
+function exportPDF() {
+  if(!window.jspdf){alert('PDF library loading... try again');return;}
+  const m=S.curMonth, y=S.curYear; const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4'}); const pw=210,lm=15,cw=180; let yp=0;
+  function addPage(){if(yp>0)doc.addPage();yp=20;drawHeader();}
+  function drawHeader(){doc.setFillColor(14,74,49);doc.rect(0,0,210,16,'F');doc.setTextColor(255,255,255);doc.setFontSize(13);doc.setFont('helvetica','bold');doc.text('TiffinTrack — Monthly Report: '+MONTHS[m]+' '+y,lm,10.5);doc.setFontSize(8);doc.setFont('helvetica','normal');doc.text('Generated: '+toDateStr(new Date()),210-lm,10.5,{align:'right'});doc.setTextColor(30,30,30);}
+  addPage(); let gT=0,gP=0,gN=0;
+  S.customers.forEach(c=>{const d=getMonthlyData(c.id,m,y);gT+=d.totalAmt;gP+=d.paid;gN+=d.pending;});
+  doc.setFillColor(234,245,239);doc.rect(lm,yp,cw,20,'F');doc.setFontSize(9);doc.setFont('helvetica','bold');doc.setTextColor(14,74,49);
+  doc.text(`Total Income: Rs.${gT}`,lm+5,yp+7);doc.text(`Total Paid: Rs.${gP}`,lm+60,yp+7);doc.text(`Total Pending: Rs.${gN}`,lm+120,yp+7);
+  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(80,80,80);doc.text(`Customers: ${S.customers.length}  |  Rates: B=Rs.${S.rates.b} L=Rs.${S.rates.l} D=Rs.${S.rates.d} Extra=Rs.${S.rates.e}`,lm+5,yp+15);yp+=26;
+  S.customers.forEach((c,ci)=>{
+    const data=getMonthlyData(c.id,m,y);if(yp>250)addPage();
+    doc.setFillColor(29,158,117);doc.rect(lm,yp,cw,10,'F');doc.setTextColor(255,255,255);doc.setFontSize(11);doc.setFont('helvetica','bold');doc.text(`${ci+1}. ${c.name}`+(c.phone?`  |  ${c.phone}`:''),lm+3,yp+7);yp+=12;
+    doc.setFillColor(240,253,248);doc.rect(lm,yp,cw,8,'F');doc.setFontSize(8.5);doc.setFont('helvetica','normal');doc.setTextColor(30,30,30);doc.text(`B:${data.totalB} L:${data.totalL} D:${data.totalD} Extra:${data.totalE}  |  Total:Rs.${data.totalAmt}  |  Paid:Rs.${data.paid}  |  Pending:Rs.${data.pending}`,lm+3,yp+5.5);yp+=10;
+    const activeRows=data.rows.filter(r=>r.amt>0);
+    if(activeRows.length){
+      const cols=[28,10,10,10,16,18],heads=['Date','B','L','D','Extra','Total'],sx=lm;
+      doc.setFillColor(215,235,245);doc.rect(sx,yp,cw,6,'F');doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(20,80,150);let cx=sx+2;heads.forEach((h,i)=>{doc.text(h,cx,yp+4.5);cx+=cols[i];});yp+=6;doc.setFont('helvetica','normal');doc.setTextColor(40,40,40);
+      activeRows.forEach((row,ri)=>{if(yp>275)addPage();if(ri%2===0){doc.setFillColor(250,252,250);doc.rect(sx,yp,cw,5.5,'F');}doc.setFontSize(8);cx=sx+2;[row.date,row.b?'Y':'',row.l?'Y':'',row.d?'Y':'',row.e||'','Rs.'+row.amt].forEach((v,i)=>{doc.text(String(v),cx,yp+4);cx+=cols[i];});yp+=5.5;});
+      doc.setFillColor(234,245,239);doc.rect(lm,yp,cw,6,'F');doc.setFontSize(8.5);doc.setFont('helvetica','bold');cx=lm+2;doc.setTextColor(14,74,49);doc.text('Monthly Total',cx,yp+4.5);cx+=92;doc.text('Rs.'+data.totalAmt,cx,yp+4.5);yp+=6;
+      doc.setFillColor(234,240,250);doc.rect(lm,yp,cw,6,'F');cx=lm+2;doc.setTextColor(26,95,138);doc.text('Paid Amount',cx,yp+4.5);cx+=92;doc.text('Rs.'+data.paid,cx,yp+4.5);yp+=6;
+      doc.setFillColor(253,240,238);doc.rect(lm,yp,cw,6,'F');cx=lm+2;doc.setTextColor(data.pending>0?192:14,data.pending>0?57:74,data.pending>0?43:49);doc.text('Pending Amount',cx,yp+4.5);cx+=92;doc.text('Rs.'+data.pending,cx,yp+4.5);yp+=6;
+    }
+    yp+=6;
+  });
+  // Add developer credit to PDF footer
+  doc.setFontSize(7); doc.setTextColor(150,150,150); doc.setFont('helvetica','normal');
+  doc.text('Developed by Antariksh Sawarbandhe', 105, 290, {align:'center'});
+  doc.save(`TiffinTrack_${MONTHS[m]}_${y}.pdf`);
+}
+
+// ===================== EXPORT EXCEL =====================
+function exportExcel() {
+  const m=S.curMonth, y=S.curYear, wb=XLSX.utils.book_new();
+  const rows=[['Date','Customer Name','Breakfast','Lunch','Dinner','Extra Tiffin','B Rate','L Rate','D Rate','Extra Rate','Daily Total','Paid Amount','Pending Amount','Remark']];
+  S.customers.forEach(c=>{const data=getMonthlyData(c.id,m,y);data.rows.forEach(r=>{if(r.amt>0||r.b||r.l||r.d||r.e)rows.push([r.date,c.name,r.b?'Yes':'No',r.l?'Yes':'No',r.d?'Yes':'No',r.e,S.rates.b,S.rates.l,S.rates.d,S.rates.e,r.amt,'','','']);});rows.push([MONTHS[m]+' '+y+' Summary',c.name,'','','','','','','','',data.totalAmt,data.paid,data.pending,'Monthly Total']);rows.push([]);});
+  rows.push([]); rows.push(['','Developed by Antariksh Sawarbandhe']);
+  const ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:14},{wch:22},{wch:11},{wch:9},{wch:9},{wch:13},{wch:9},{wch:9},{wch:9},{wch:11},{wch:13},{wch:13},{wch:15},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws,MONTHS[m].slice(0,3)+' '+y);XLSX.writeFile(wb,`TiffinTrack_${MONTHS[m]}_${y}.xlsx`);
+}
+
+// ===================== INIT ON LOAD =====================
+(function() {
+  document.getElementById('login-user').value = 'admin';
+})();
+</script>
+</body>
+</html>
